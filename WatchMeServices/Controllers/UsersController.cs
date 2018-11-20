@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using WatchMeServices.Models;
+using MySql.Data.MySqlClient;
 
 namespace WatchMeServices.Controllers
 {
