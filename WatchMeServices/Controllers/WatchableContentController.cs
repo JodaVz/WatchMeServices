@@ -65,5 +65,73 @@ namespace WatchMeServices.Controllers
             return null;
 
         }
+
+        [HttpGet]
+        [Route("sadrzaj")]
+        public IHttpActionResult GetAllMovies()
+        {
+            WatchableContent movie = new WatchableContent();
+            List<WatchableContent> listaFilmova = new List<WatchableContent>();
+            try
+            {
+                SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
+                builder.DataSource = "air2018watchme.database.windows.net";
+                builder.UserID = "larisa.borovec";
+                builder.Password = "Something24";
+                builder.InitialCatalog = "AIR2018WatchMe";
+
+                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+                {
+
+                    connection.Open();
+
+                    string sql = "SELECT * FROM WatchableContent ";
+
+                    using (SqlCommand command = new SqlCommand(sql, connection))
+                    {
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.HasRows)
+                            {
+                                while (reader.Read())
+                                {
+                                    movie.ID = reader.GetInt32(0);
+                                    movie.Name = reader.GetString(1);
+                                    movie.ReleaseDate = reader.GetDateTime(2);
+                                    movie.Season = reader.GetInt32(3);
+                                    movie.Episode = reader.GetInt32(4);
+                                    movie.Duration = Convert.ToDouble(reader.GetValue(5));
+                                    movie.FeedBack = reader.GetInt32(6);
+                                    movie.CoverPhoto = reader.GetStream(7).ToString();
+                                    listaFilmova.Add(new WatchableContent()
+                                    {
+                                        ID = movie.ID,
+                                        Name = movie.Name,
+                                        ReleaseDate = movie.ReleaseDate,
+                                        Season = movie.Season,
+                                        Episode = movie.Episode,
+                                        Duration = movie.Duration,
+                                        FeedBack = movie.FeedBack,
+                                        CoverPhoto = movie.CoverPhoto
+                                    });
+                                    
+
+                                }
+                                reader.NextResult();
+                            }
+                        }
+                        var json = JsonConvert.SerializeObject(listaFilmova);
+                        return Ok(json);
+                    }
+                }
+
+            }
+            catch (SqlException e)
+            {
+                throw e;
+            }
+            return null;
+
+        }
     }
 }
