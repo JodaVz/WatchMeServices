@@ -14,11 +14,7 @@ namespace WatchMeServices.Controllers
     [RoutePrefix("api/korisnici")]
     public class UsersController : ApiController
     {
-        // GET: api/Users
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
+        
 
 
 
@@ -171,16 +167,6 @@ namespace WatchMeServices.Controllers
                 throw e;
             }
            
-        }
-
-        // PUT: api/Users/5
-        public void Put(int id, [FromBody]string value)
-        {
-        }
-
-        // DELETE: api/Users/5
-        public void Delete(int id)
-        {
         }
     }
 }
