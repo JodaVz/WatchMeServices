@@ -52,7 +52,7 @@ namespace WatchMeServices.Controllers
                                 movie.Episode = reader.GetInt32(4);
                                 movie.Duration = Convert.ToDouble(reader.GetValue(5));
                                 movie.FeedBack = reader.GetInt32(6);
-                                movie.CoverPhoto = reader.GetStream(7).ToString();
+                                movie.CoverPhoto = reader.GetString(7);
                                 
                                 var json = JsonConvert.SerializeObject(movie);
 
