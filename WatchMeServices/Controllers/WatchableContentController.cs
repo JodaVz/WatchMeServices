@@ -2,9 +2,15 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Web;
+using System.Web.Hosting;
 using System.Web.Http;
 using WatchMeServices.Models;
 
@@ -133,5 +139,7 @@ namespace WatchMeServices.Controllers
             return null;
 
         }
+
+        
     }
 }

@@ -7,7 +7,7 @@ namespace WatchMeServices.Models
 {
     public class Users
     {
-        private Users user;
+        
 
         
 
