@@ -17,6 +17,7 @@ namespace WatchMeServices.Controllers
 
         public static string Email;
         public static string Password;
+        public SqlConnection connection = Database.DBCon.BuildConnection();
 
 
         // GET: api/Users/5
@@ -32,13 +33,9 @@ namespace WatchMeServices.Controllers
             Users user = new Users();
             try
             {
-                SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
-                builder.DataSource = "air2018watchme.database.windows.net";
-                builder.UserID = "larisa.borovec";
-                builder.Password = "Something24";
-                builder.InitialCatalog = "AIR2018WatchMe";
+                
 
-                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+                using (connection)
                 {
                     
                     connection.Open();
@@ -63,6 +60,7 @@ namespace WatchMeServices.Controllers
                             }
                         }
                     }
+                    connection.Close();
                 }
 
             }
@@ -82,13 +80,9 @@ namespace WatchMeServices.Controllers
             List<Users> listaKorisnika = new List<Users>();
             try
             {
-                SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
-                builder.DataSource = "air2018watchme.database.windows.net";
-                builder.UserID = "larisa.borovec";
-                builder.Password = "Something24";
-                builder.InitialCatalog = "AIR2018WatchMe";
+                
 
-                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+                using (connection)
                 {
 
                     connection.Open();
@@ -111,9 +105,7 @@ namespace WatchMeServices.Controllers
                                     user.email = reader.GetString(3);
                                     user.Password = reader.GetString(4);
 
-                                    //var json = JsonConvert.SerializeObject(user);
-
-                                    //return Ok(json);
+                                    
 
                                     listaKorisnika.Add(new Users()
                                     {
@@ -131,8 +123,12 @@ namespace WatchMeServices.Controllers
                         }
                         var json = JsonConvert.SerializeObject(listaKorisnika);
                         return Ok(json);
+                        connection.Close();
                     }
+                    
+
                 }
+                
 
             }
             catch (SqlException e)
@@ -190,6 +186,8 @@ namespace WatchMeServices.Controllers
             }
 
         }
+
+
         [HttpGet]
         [Route("users/provjeri")]
         public IHttpActionResult ProvjeriKorisnika()
@@ -197,13 +195,9 @@ namespace WatchMeServices.Controllers
             Users user = new Users();
             try
             {
-                SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
-                builder.DataSource = "air2018watchme.database.windows.net";
-                builder.UserID = "larisa.borovec";
-                builder.Password = "Something24";
-                builder.InitialCatalog = "AIR2018WatchMe";
+                
 
-                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+                using (connection)
                 {
 
                     connection.Open();
@@ -218,6 +212,7 @@ namespace WatchMeServices.Controllers
                             if (reader.HasRows) return Ok();//100 sve je okej, user postoji 
                         }
                     }
+                    connection.Close();
                 }
 
             }

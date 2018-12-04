@@ -19,6 +19,8 @@ namespace WatchMeServices.Controllers
     [RoutePrefix("api/sadrzaj")]
     public class WatchableContentController : ApiController
     {
+        public SqlConnection connection = Database.DBCon.BuildConnection();
+
         [HttpGet]
         [Route("sadrzaj/{id:int}")]
         public IHttpActionResult GetMovieById(int id)
@@ -26,13 +28,9 @@ namespace WatchMeServices.Controllers
             WatchableContent movie = new WatchableContent();
             try
             {
-                SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
-                builder.DataSource = "air2018watchme.database.windows.net";
-                builder.UserID = "larisa.borovec";
-                builder.Password = "Something24";
-                builder.InitialCatalog = "AIR2018WatchMe";
+                
 
-                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+                using (connection)
                 {
 
                     connection.Open();
@@ -62,6 +60,7 @@ namespace WatchMeServices.Controllers
                         }
                     }
                 }
+                connection.Close();
 
             }
             catch (SqlException e)
@@ -80,13 +79,9 @@ namespace WatchMeServices.Controllers
             List<WatchableContent> listaFilmova = new List<WatchableContent>();
             try
             {
-                SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
-                builder.DataSource = "air2018watchme.database.windows.net";
-                builder.UserID = "larisa.borovec";
-                builder.Password = "Something24";
-                builder.InitialCatalog = "AIR2018WatchMe";
+                
 
-                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+                using (connection)
                 {
 
                     connection.Open();
@@ -108,7 +103,7 @@ namespace WatchMeServices.Controllers
                                     movie.Episode = reader.GetInt32(4);
                                     movie.Duration = Convert.ToDouble(reader.GetValue(5));
                                     movie.FeedBack = reader.GetInt32(6);
-                                    movie.CoverPhoto = reader.GetStream(7).ToString();
+                                    movie.CoverPhoto = reader.GetString(7);
                                     listaFilmova.Add(new WatchableContent()
                                     {
                                         ID = movie.ID,
@@ -126,9 +121,12 @@ namespace WatchMeServices.Controllers
                                 reader.NextResult();
                             }
                         }
+
                         var json = JsonConvert.SerializeObject(listaFilmova);
                         return Ok(json);
+                        connection.Close();
                     }
+                    
                 }
 
             }
