@@ -123,8 +123,9 @@ namespace WatchMeServices.Controllers
                         }
 
                         var json = JsonConvert.SerializeObject(listaFilmova);
-                        return Ok(json);
                         connection.Close();
+                        return Ok(json);
+                        
                     }
                     
                 }
@@ -138,6 +139,59 @@ namespace WatchMeServices.Controllers
 
         }
 
-        
+        [HttpGet]
+        [Route("sadrzaj/dohvati_kategorije")]
+        public IHttpActionResult GetCategories()
+        {
+            Category category = new Category();
+            List<Category> listaKategorija = new List<Category>();
+            try
+            {
+
+
+                using (connection)
+                {
+
+                    connection.Open();
+
+                    string sql = "SELECT DISTINCT * FROM Genre";
+
+                    using (SqlCommand command = new SqlCommand(sql, connection))
+                    {
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.HasRows)
+                            {
+                                while (reader.Read())
+                                {
+                                    category.ID = reader.GetInt32(0);
+                                    category.Name = reader.GetString(1);
+                                    listaKategorija.Add(new Category()
+                                    {
+                                        ID = category.ID,
+                                        Name = category.Name,
+                                        
+                                    });
+
+
+                                }
+                                reader.NextResult();
+                            }
+                        }
+
+                        var json = JsonConvert.SerializeObject(listaKategorija);
+                        connection.Close();
+                        return Ok(json);
+                        
+                    }
+
+                }
+
+            }
+            catch (SqlException e)
+            {
+                throw e;
+            }
+        }
     }
 }
