@@ -193,5 +193,106 @@ namespace WatchMeServices.Controllers
                 throw e;
             }
         }
+
+        [HttpGet]
+        [Route("sadrzaj/dohvati_prema_kategoriji")]
+        public IHttpActionResult GetMoviesByCategory()
+        {
+            
+            List<string> listaZanrova = new List<string>();
+            List<List<WatchableContentCategory>> listaPoKategorijama = new List<List<WatchableContentCategory>>();
+           
+            try
+            {
+
+
+                using (connection)
+                {
+
+                    connection.Open();
+                    //Upit za dobivanje svih imena zanrova za koje postoji neka zavisnost ( odnosno, postoje filmovi koji spadaju u taj zanr)
+                    string sql1 = "SELECT DISTINCT Name FROM Genre, IsGenre WHERE IsGenre.Genre_ID = Genre.ID";
+                    using (SqlCommand command = new SqlCommand(sql1, connection))
+                    {
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.HasRows)
+                            {
+                                while (reader.Read())
+                                {
+                                    listaZanrova.Add(new string(reader.GetString(0).ToCharArray()));
+                                }
+                                reader.NextResult();
+                            }
+                            // var jsontest = JsonConvert.SerializeObject(listaZanrova);
+                            // return Ok(jsontest);
+                        }
+                    }
+
+
+                   
+                    foreach (var zanr in listaZanrova)
+                    {
+                        
+                        string sql = "SELECT odgovor.* FROM(SELECT WatchableContent.*,Genre.Name as " +
+                       "NazivZanra FROM WatchableContent,Genre,IsGenre WHERE WatchableContent.ID=IsGenre.Movie_ID AND Genre.ID=IsGenre.Genre_ID)" +
+                       " odgovor WHERE odgovor.NazivZanra='"+zanr+"';";
+                        List<WatchableContentCategory> listawcC = new List<WatchableContentCategory>();
+                        WatchableContentCategory wCC = new WatchableContentCategory();
+                        using (SqlCommand command = new SqlCommand(sql, connection))
+                        {
+                            using (SqlDataReader reader = command.ExecuteReader())
+                            {
+                                while (reader.HasRows)
+                                {
+                                    while (reader.Read())
+                                    {
+                                        wCC.ID = reader.GetInt32(0);
+                                        wCC.Name = reader.GetString(1);
+                                        wCC.ReleaseDate = reader.GetDateTime(2);
+                                        wCC.Season = reader.GetInt32(3);
+                                        wCC.Episode = reader.GetInt32(4);
+                                        wCC.Duration = Convert.ToDouble(reader.GetValue(5));
+                                        wCC.FeedBack = reader.GetInt32(6);
+                                        wCC.CoverPhoto = reader.GetString(7);
+                                        wCC.Category = reader.GetString(8);
+                                        listawcC.Add(new WatchableContentCategory()
+                                        {
+                                            ID = wCC.ID,
+                                            Name = wCC.Name,
+                                            ReleaseDate = wCC.ReleaseDate,
+                                            Season = wCC.Season,
+                                            Episode = wCC.Episode,
+                                            Duration = wCC.Duration,
+                                            FeedBack = wCC.FeedBack,
+                                            CoverPhoto = wCC.CoverPhoto,
+                                            Category=wCC.Category
+                                        });
+
+
+                                    }
+                                    reader.NextResult();
+                                }
+                            }
+                            listaPoKategorijama.Add(new List<WatchableContentCategory>(listawcC));
+                            listawcC.Clear();
+
+                        }
+                        //kraj foreacha
+                    }
+
+                    var json = JsonConvert.SerializeObject(listaPoKategorijama);
+                    connection.Close();
+                    return Ok(json);
+                }
+                
+
+            }
+            catch (SqlException e)
+            {
+                throw e;
+            }
+        }
+
     }
 }

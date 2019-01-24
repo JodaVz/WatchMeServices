@@ -98,8 +98,10 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\Category.cs" />
+    <Compile Include="Models\IsCategory.cs" />
     <Compile Include="Models\Users.cs" />
     <Compile Include="Models\WatchableContent.cs" />
+    <Compile Include="Models\WatchableContentCategory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
