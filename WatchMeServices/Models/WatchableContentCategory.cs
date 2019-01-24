@@ -16,6 +16,6 @@ namespace WatchMeServices.Models
         public int FeedBack { get; set; }
         public string CoverPhoto { get; set; }
         public string Category { get; set; }
-        public List<string> Categories { get; set; }
+        //public List<string> Categories { get; set; }
     }
 }
