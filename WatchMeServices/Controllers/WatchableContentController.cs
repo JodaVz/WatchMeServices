@@ -294,5 +294,112 @@ namespace WatchMeServices.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("sadrzaj/dohvati_kategorije_filmova")]
+        public IHttpActionResult GetCategoryMovies()
+        {
+            CategoryJson category = new CategoryJson();
+            List<CategoryJson> listaKategorija = new List<CategoryJson>();
+            WatchableContent film = new WatchableContent();
+            try
+            {
+
+
+                using (connection)
+                {
+
+                    connection.Open();
+
+                    string sql = "SELECT DISTINCT * FROM Genre";
+
+                    using (SqlCommand command = new SqlCommand(sql, connection))
+                    {
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.HasRows)
+                            {
+                                while (reader.Read())
+                                {
+                                    
+                                    category.Name = reader.GetString(1);
+                                    listaKategorija.Add(new CategoryJson()
+                                    {
+                                        
+                                        Name = category.Name,
+                                        MovieList= new List<WatchableContent>()
+                                        
+
+                                    });
+
+
+                                }
+                                reader.NextResult();
+                            }
+                        }
+
+                        //var json = JsonConvert.SerializeObject(listaKategorija);
+                      
+                       
+
+                    }
+                    foreach (CategoryJson item in listaKategorija)
+                    {
+                         sql = "select WatchableContent.* from WatchableContent,IsGenre,Genre WHERE WatchableContent.ID=IsGenre.Movie_ID AND Genre.ID=IsGenre.Genre_ID AND Genre.Name='"+item.Name+"';";
+
+                        using (SqlCommand command = new SqlCommand(sql, connection))
+                        {
+                            using (SqlDataReader reader = command.ExecuteReader())
+                            {
+                                while (reader.HasRows)
+                                {
+                                    while (reader.Read())
+                                    {
+
+                                        film.ID = reader.GetInt32(0);
+                                        film.Name = reader.GetString(1);
+                                        film.ReleaseDate = reader.GetDateTime(2);
+                                        film.Season = reader.GetInt32(3);
+                                        film.Episode = reader.GetInt32(4);
+                                        film.Duration = Convert.ToDouble(reader.GetValue(5));
+                                        film.FeedBack = reader.GetInt32(6);
+                                        film.CoverPhoto = reader.GetString(7);
+                                        item.MovieList.Add(new WatchableContent()
+                                        {
+                                            ID=film.ID,
+                                            Name=film.Name,
+                                            ReleaseDate=film.ReleaseDate,
+                                            Season=film.Season,
+                                            Episode=film.Episode,
+                                            Duration=film.Duration,
+                                            FeedBack=film.FeedBack,
+                                            CoverPhoto=film.CoverPhoto
+                                            
+
+                                        });
+
+
+                                    }
+                                    reader.NextResult();
+                                }
+                            }
+
+                           
+
+
+
+                        }
+                    }
+                    var json = JsonConvert.SerializeObject(listaKategorija);
+                    connection.Close();
+                    return Ok(json);
+
+                }
+
+            }
+            catch (SqlException e)
+            {
+                throw e;
+            }
+        }
     }
 }
