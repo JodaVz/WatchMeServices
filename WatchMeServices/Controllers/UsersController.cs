@@ -17,6 +17,10 @@ namespace WatchMeServices.Controllers
 
         public static string Email;
         public static string Password;
+        public static string NovoIme;
+        public static string NovoPrezime;
+        public static string NoviEmail;
+        public static string NoviPassword;
         public SqlConnection connection = Database.DBCon.BuildConnection();
 
 
@@ -192,7 +196,7 @@ namespace WatchMeServices.Controllers
         [Route("users/provjeri")]
         public IHttpActionResult ProvjeriKorisnika()
         {
-            Users user = new Users();
+           
             try
             {
                 
@@ -212,6 +216,83 @@ namespace WatchMeServices.Controllers
                             if (reader.HasRows) return Ok();//100 sve je okej, user postoji 
                         }
                     }
+                    connection.Close();
+                }
+
+            }
+            catch (SqlException e)
+            {
+                throw e;
+            }
+            return null;
+
+        }
+
+        [HttpPost]
+        [Route("users/unesi_novog_korisnika")]
+        public void SaveUserData([FromBody]string podaci)
+        {
+            try
+            {
+                string dobivenString = podaci;
+                Users user = JsonConvert.DeserializeObject<Users>(dobivenString);
+                string ime = user.Name;
+                string prezime = user.Surname;
+                string email = user.email;
+                string pass = user.Password;
+                NovoIme = ime;
+                NovoPrezime = prezime;
+                NoviEmail = email;
+                NoviPassword = pass;
+            }
+            catch (Exception e)
+            {
+
+                throw e;
+            }
+
+        }
+
+        [HttpGet]
+        [Route("users/unesi_novog_korisnika")]
+        public IHttpActionResult AddUser()
+        {
+            int provjera = 0;
+            try
+            {
+
+
+                using (connection)
+                {
+
+                    connection.Open();
+
+                    
+                    string sql = "SELECT * FROM Users WHERE Email='"+NoviEmail+"' AND Password='"+NoviPassword+"'";
+
+                    using (SqlCommand command = new SqlCommand(sql, connection))
+                    {
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            if (!reader.HasRows)//204 dobro je morem nastavit
+                            {
+                                provjera = 1;
+                            }
+                            if (reader.HasRows) return NotFound();//100 Takav email vec postoji
+                        }
+                    }
+
+                    if (provjera==1)
+                    {
+                        sql = "INSERT INTO Users(Name,Surname,Email,Password) VALUES('" + NovoIme + "','" + NovoPrezime + "','" + NoviEmail + "','" + NoviPassword + "');";
+
+                        using (SqlCommand command = new SqlCommand(sql, connection))
+                        {
+                            SqlDataReader reader = command.ExecuteReader();
+                        }
+                        return Ok();
+                    }
+                    
                     connection.Close();
                 }
 
