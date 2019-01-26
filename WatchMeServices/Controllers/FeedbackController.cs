@@ -78,5 +78,62 @@ namespace WatchMeServices.Controllers
             return null;
 
         }
+
+        [HttpGet]
+        [Route("feedback/provjeri_ocjenu")]
+        public IHttpActionResult ProvjeriRating()
+        {
+            int rating = 0;
+            try
+            {
+
+
+                using (connection)
+                {
+
+                    connection.Open();
+
+                    string sql = "SELECT Feedback.Rating FROM Feedback,WatchableContent,Users WHERE LeftBy = Users.ID AND CommentedOn = WatchableContent.ID and Users.ID = "+LeftBy+" AND WatchableContent.ID = "+CommentedOn+"; ";
+
+                    using (SqlCommand command = new SqlCommand(sql, connection))
+                    {
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.HasRows)
+                            {
+                                while (reader.Read())
+                                {
+                                    rating = reader.GetInt32(0);
+                                }
+                            }
+                        }
+                    }
+                    connection.Close();
+                    if (rating==1)
+                    {
+                        return Ok(); //ako je pozitivno ocjenjeno onda je 200 OK
+                    }
+                    if (rating==0)
+                    {
+                        return BadRequest(); //ako je negativno ocjenjeno onda je BadRequest 400
+                    }
+                    else
+                    {
+                        return NotFound(); //ako smije likeat i dislikat onda je NotFound 404
+                    }
+                   
+
+                }
+
+            }
+            catch (SqlException e)
+            {
+                throw e;
+            }
+            return null;
+
+        }
+
+
     }
 }
