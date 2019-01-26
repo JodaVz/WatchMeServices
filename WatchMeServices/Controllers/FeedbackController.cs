@@ -84,6 +84,8 @@ namespace WatchMeServices.Controllers
         public IHttpActionResult ProvjeriRating()
         {
             int rating = 0;
+            int idU = 8;
+            int idF = 13;
             try
             {
 
@@ -105,6 +107,7 @@ namespace WatchMeServices.Controllers
                                 {
                                     rating = reader.GetInt32(0);
                                 }
+                                reader.NextResult();
                             }
                         }
                     }
@@ -113,13 +116,13 @@ namespace WatchMeServices.Controllers
                     {
                         return Ok(); //ako je pozitivno ocjenjeno onda je 200 OK
                     }
-                    if (rating==0)
+                    if (rating==2)
                     {
-                        return BadRequest(); //ako je negativno ocjenjeno onda je BadRequest 400
+                        return InternalServerError(); //ako je negativno ocjenjeno onda je InternalServerErro 500
                     }
                     else
                     {
-                        return NotFound(); //ako smije likeat i dislikat onda je NotFound 404
+                        return Unauthorized(); //ako smije likeat i dislikat onda je Unauthorized 401
                     }
                    
 
