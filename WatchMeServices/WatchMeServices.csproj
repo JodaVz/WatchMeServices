@@ -91,6 +91,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\FeedbackController.cs" />
     <Compile Include="Controllers\UsersController.cs" />
     <Compile Include="Controllers\WatchableContentController.cs" />
     <Compile Include="Database\DBCon.cs" />
@@ -99,6 +100,7 @@
     </Compile>
     <Compile Include="Models\Category.cs" />
     <Compile Include="Models\CategoryJson.cs" />
+    <Compile Include="Models\Feedback.cs" />
     <Compile Include="Models\IsCategory.cs" />
     <Compile Include="Models\Users.cs" />
     <Compile Include="Models\WatchableContent.cs" />
