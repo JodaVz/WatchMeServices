@@ -28,11 +28,9 @@ namespace WatchMeServices.Controllers
             {
                 string podaci= dobiveniPodaci;
                 Feedback feedback = JsonConvert.DeserializeObject<Feedback>(podaci);
-                //string comment = feedback.Comments;
                 int leftby = feedback.LeftBy;
                 int commentedon = feedback.CommentedOn;
-                int rating = feedback.Rating;
-                //Comment = comment;
+                int rating = feedback.Rating;              
                 LeftBy = leftby;
                 CommentedOn = commentedon;
                 Rating = rating;
@@ -42,6 +40,64 @@ namespace WatchMeServices.Controllers
 
                 throw e;
             }
+
+        }
+
+        [HttpPost]
+        [Route("feedback/spremi_komentar")]
+        public void SaveMovieComment([FromBody]string dobiveniPodaci)
+        {
+            try
+            {
+                string podaci = dobiveniPodaci;
+                Feedback feedback = JsonConvert.DeserializeObject<Feedback>(podaci);
+                string comment = feedback.Comments;
+                int leftby = feedback.LeftBy;
+                int commentedon = feedback.CommentedOn;
+                Comment = comment;
+                LeftBy = leftby;
+                CommentedOn = commentedon;
+                
+            }
+            catch (Exception e)
+            {
+
+                throw e;
+            }
+
+        }
+
+        [HttpGet]
+        [Route("feedback/spremi_komentar")]
+        public IHttpActionResult DodajKomentar()
+        {
+
+            try
+            {
+
+
+                using (connection)
+                {
+
+                    connection.Open();
+
+                    string sql = "IF EXISTS(SELECT * FROM Feedback WHERE LeftBy ="+LeftBy+" AND CommentedOn="+CommentedOn+")UPDATE Feedback SET Comments = '"+Comment+"' WHERE LeftBy = "+LeftBy+" AND CommentedOn = "+CommentedOn+" ELSE INSERT INTO Feedback(Comments, LeftBy, CommentedOn) VALUES('"+Comment+"', "+LeftBy+", "+CommentedOn+"); ";
+
+                    using (SqlCommand command = new SqlCommand(sql, connection))
+                    {
+                        SqlDataReader reader = command.ExecuteReader();
+                    }
+                    connection.Close();
+                    return Ok();
+
+                }
+
+            }
+            catch (SqlException e)
+            {
+                throw e;
+            }
+            return null;
 
         }
 
@@ -84,8 +140,7 @@ namespace WatchMeServices.Controllers
         public IHttpActionResult ProvjeriRating()
         {
             int rating = 0;
-            int idU = 8;
-            int idF = 13;
+            
             try
             {
 
@@ -135,6 +190,57 @@ namespace WatchMeServices.Controllers
             }
             return null;
 
+        }
+
+        [HttpGet]
+        [Route("feedback/dohvati_komentare")]
+        public IHttpActionResult GetMovieComments()
+        {
+            string zaUpis;
+            List<string> listakomentara = new List<string>();
+            try
+            {
+
+
+                using (connection)
+                {
+
+                    connection.Open();
+
+                    string sql = "SELECT Feedback.Comments FROM Feedback,WatchableContent WHERE CommentedOn=WatchableContent.ID AND WatchableContent.ID="+CommentedOn+";";
+
+
+                    using (SqlCommand command = new SqlCommand(sql, connection))
+                    {
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.HasRows)
+                            {
+                                while (reader.Read())
+                                {
+                                    zaUpis = reader.GetString(0);
+
+                                    listakomentara.Add(zaUpis);
+
+
+                                }
+                                reader.NextResult();
+                            }
+                        }
+
+                        var json = JsonConvert.SerializeObject(listakomentara);
+                        connection.Close();
+                        return Ok(json);
+
+                    }
+
+                }
+
+            }
+            catch (SqlException e)
+            {
+                throw e;
+            }
         }
 
 
