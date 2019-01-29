@@ -218,9 +218,14 @@ namespace WatchMeServices.Controllers
                             {
                                 while (reader.Read())
                                 {
-                                    zaUpis = reader.GetString(0);
+                                    //TODO Slozit da ako je null i dalje cita
+                                    if (reader.GetString(0)!=null)
+                                    {
+                                        zaUpis = reader.GetString(0);
 
-                                    listakomentara.Add(zaUpis);
+                                        listakomentara.Add(new string(zaUpis.ToCharArray()));
+                                    }
+                                    
 
 
                                 }
@@ -229,6 +234,55 @@ namespace WatchMeServices.Controllers
                         }
 
                         var json = JsonConvert.SerializeObject(listakomentara);
+                        connection.Close();
+                        return Ok(json);
+
+                    }
+
+                }
+
+            }
+            catch (SqlException e)
+            {
+                throw e;
+            }
+        }
+
+        [HttpGet]
+        [Route("feedback/dohvati_rating")]
+        public IHttpActionResult GetMovieRating()
+        {
+            int RatingFilma = 0;
+            
+            try
+            {
+
+
+                using (connection)
+                {
+
+                    connection.Open();
+
+                    string sql = "SELECT SUM(Rating) AS UkupniRating FROM WatchableContent, Feedback, Users WHERE LeftBy = Users.ID AND CommentedOn = WatchableContent.ID AND WatchableContent.ID = "+CommentedOn+" GROUP BY WatchableContent.Name ORDER BY UkupniRating DESC; ";
+
+                    using (SqlCommand command = new SqlCommand(sql, connection))
+                    {
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.HasRows)
+                            {
+                                while (reader.Read())
+                                {
+                                    RatingFilma = reader.GetInt32(0);
+                                    
+
+
+                                }
+                                reader.NextResult();
+                            }
+                        }
+
+                        var json = JsonConvert.SerializeObject(RatingFilma);
                         connection.Close();
                         return Ok(json);
 

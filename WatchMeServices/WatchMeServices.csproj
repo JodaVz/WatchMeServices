@@ -102,6 +102,7 @@
     <Compile Include="Models\CategoryJson.cs" />
     <Compile Include="Models\Feedback.cs" />
     <Compile Include="Models\IsCategory.cs" />
+    <Compile Include="Models\RatedMovie.cs" />
     <Compile Include="Models\Users.cs" />
     <Compile Include="Models\WatchableContent.cs" />
     <Compile Include="Models\WatchableContentCategory.cs" />
