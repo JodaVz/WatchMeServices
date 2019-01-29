@@ -86,7 +86,7 @@ namespace WatchMeServices.Controllers
 
                     connection.Open();
 
-                    string sql = "SELECT * FROM WatchableContent ";
+                    string sql = "SELECT TOP 5 WatchableContent.* FROM WatchableContent,Feedback,Users WHERE LeftBy = Users.ID AND CommentedOn = WatchableContent.ID GROUP BY WatchableContent.ID,WatchableContent.Name,WatchableContent.ReleasedDate,WatchableContent.Season,WatchableContent.Episode,WatchableContent.Duration,WatchableContent.Feedback,WatchableContent.CoverPhoto ORDER BY SUM(Rating) DESC; ";
 
                     using (SqlCommand command = new SqlCommand(sql, connection))
                     {
