@@ -299,8 +299,8 @@ namespace WatchMeServices.Controllers
         public IHttpActionResult GetCategoryMovies()
         {
             CategoryJson category = new CategoryJson();
-            List<CategoryJson> listaKategorija = new List<CategoryJson>();
-            WatchableContent film = new WatchableContent();
+            List<RatedCategoryList> listaKategorija = new List<RatedCategoryList>();
+            WatchableContentRated film = new WatchableContentRated();
             try
             {
 
@@ -322,11 +322,11 @@ namespace WatchMeServices.Controllers
                                 {
                                     
                                     category.Name = reader.GetString(1);
-                                    listaKategorija.Add(new CategoryJson()
+                                    listaKategorija.Add(new RatedCategoryList()
                                     {
                                         
                                         Name = category.Name,
-                                        MovieList= new List<WatchableContent>()
+                                        MovieList= new List<WatchableContentRated>()
                                         
 
                                     });
@@ -342,9 +342,9 @@ namespace WatchMeServices.Controllers
                        
 
                     }
-                    foreach (CategoryJson item in listaKategorija)
+                    foreach (RatedCategoryList item in listaKategorija)
                     {
-                         sql = "select WatchableContent.* from WatchableContent,IsGenre,Genre WHERE WatchableContent.ID=IsGenre.Movie_ID AND Genre.ID=IsGenre.Genre_ID AND Genre.Name='"+item.Name+"';";
+                         sql = "select WatchableContent.*,SUM(f.Rating) As UkupniRating from WatchableContent left join Feedback f on WatchableContent.ID = f.CommentedOn left join IsGenre isg on WatchableContent.ID = isg.Movie_ID left join Genre g on g.ID = isg.Genre_ID where WatchableContent.ID = isg.Movie_ID AND g.ID = isg.Genre_ID AND g.Name = '"+item.Name+"' GROUP BY  WatchableContent.ID,WatchableContent.Name,WatchableContent.Name,WatchableContent.ReleasedDate,WatchableContent.Season,WatchableContent.Episode,WatchableContent.Duration,WatchableContent.Feedback,WatchableContent.CoverPhoto;";
 
                         using (SqlCommand command = new SqlCommand(sql, connection))
                         {
@@ -363,7 +363,9 @@ namespace WatchMeServices.Controllers
                                         film.Duration = Convert.ToDouble(reader.GetValue(5));
                                         film.FeedBack = reader.GetInt32(6);
                                         film.CoverPhoto = reader.GetString(7);
-                                        item.MovieList.Add(new WatchableContent()
+                                        if(!reader.IsDBNull(8)) film.Rating = reader.GetInt32(8);
+                                        if (reader.IsDBNull(8)) film.Rating = 0;
+                                        item.MovieList.Add(new WatchableContentRated()
                                         {
                                             ID=film.ID,
                                             Name=film.Name,
@@ -372,7 +374,9 @@ namespace WatchMeServices.Controllers
                                             Episode=film.Episode,
                                             Duration=film.Duration,
                                             FeedBack=film.FeedBack,
-                                            CoverPhoto=film.CoverPhoto
+                                            CoverPhoto=film.CoverPhoto,
+                                            Rating=film.Rating
+                                            
                                             
 
                                         });
